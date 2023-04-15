@@ -1,0 +1,25 @@
+apiVersion: v1
+entries:
+  krakend-gateway:
+  - apiVersion: v2
+    appVersion: v2
+    created: "2023-04-15T07:37:09.33142458Z"
+    description: 应用网关
+    digest: 8872e6725c65469ab9c1124b5f025ea759b8543498816c09e1dec6f3e85e1c8c
+    name: krakend-gateway
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/krakend-gateway-1.0.0/krakend-gateway-1.0.0.tgz
+    version: 1.0.0
+  micro-auth:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2023-04-15T07:37:09.479021168Z"
+    description: 认证鉴权服务
+    digest: eb59edf777f5cbede7bd0f4599916aa371fddd9007c18b3b3e977beff3186c87
+    name: micro-auth
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/micro-auth-1.0.0/micro-auth-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-04-15T07:37:09.479051368Z"
