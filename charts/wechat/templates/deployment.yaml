@@ -80,9 +80,7 @@ spec:
               mountPath: /var/log/microwe
             {{- end}}
             - name: cm-{{ include "wechat.name" . }}
-              mountPath: /etc/microwe
-            - name: cm-{{ include "wechat.name" . }}-keys
-              mountPath: /etc/microwe/auth
+              mountPath: /etc/wechat
           {{- if .Values.probe.enabled }}
           livenessProbe:
             httpGet:
@@ -113,9 +111,6 @@ spec:
         - name: cm-{{ include "wechat.name" . }}
           configMap:
             name: cm-{{ include "wechat.fullname" . }}
-        - name: cm-{{ include "wechat.name" . }}-keys
-          configMap:
-            name: cm-{{ include "wechat.fullname" . }}-keys
         {{- if .Values.filebeat.enabled }}
         - name: log-volume
           emptyDir: {}
