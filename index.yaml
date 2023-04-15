@@ -11,6 +11,28 @@ entries:
     urls:
     - https://github.com/microwe/charts/releases/download/krakend-gateway-1.0.0/krakend-gateway-1.0.0.tgz
     version: 1.0.0
+  krakend-manager:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2023-04-15T08:04:32.163100153Z"
+    description: 网关api配置服务
+    digest: 15b3424cc1bdf9040c43136a8cf258eecc14ed035de147709eb7d9a6afefdcbf
+    name: krakend-manager
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/krakend-manager-1.0.0/krakend-manager-1.0.0.tgz
+    version: 1.0.0
+  krakend-monitor:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2023-04-15T08:04:32.306380487Z"
+    description: 网关配置变更监控应用
+    digest: a40324748b775a3c7943bdac5b2810e1e87fe5b8caa40843cb754347050462cb
+    name: krakend-monitor
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/krakend-monitor-1.0.0/krakend-monitor-1.0.0.tgz
+    version: 1.0.0
   micro-auth:
   - apiVersion: v2
     appVersion: v1
@@ -22,4 +44,26 @@ entries:
     urls:
     - https://github.com/microwe/charts/releases/download/micro-auth-1.0.0/micro-auth-1.0.0.tgz
     version: 1.0.0
-generated: "2023-04-15T07:37:09.479051368Z"
+  micro-base:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2023-04-15T08:04:32.445840878Z"
+    description: 基础接口服务
+    digest: fe48ca2dd861bb6334d9e7ff1085f597820f220928c497dc6656a7f51e5426dd
+    name: micro-base
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/micro-base-1.0.0/micro-base-1.0.0.tgz
+    version: 1.0.0
+  wechat:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2023-04-15T08:04:32.592623641Z"
+    description: 认证鉴权服务
+    digest: 7cb75f49721ec82197762a0b3a04b7fbf87f578f91a5eb7ac2789f90f14e8f9c
+    name: wechat
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/wechat-1.0.0/wechat-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-04-15T08:04:32.592657642Z"
