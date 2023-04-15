@@ -1,0 +1,23 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "krakend-monitor.fullname" . }}
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  monitor.yml: |-
+    logging:
+      stdOut: true
+      saveToFile: false
+      level: info
+    database:
+      driver: {{ .Values.database.driver }}
+      {{- if eq .Values.database.driver "mysql" }}
+      source: "${DB_USER}:${DB_PASS}@tcp({{ .Values.database.host }}:{{ .Values.database.port }})/{{ .Values.database.instance }}?parseTime=true"
+      {{- else }}
+      source: "host={{ .Values.database.host }} port={{ .Values.database.port }} user=${DB_USER} password=${DB_PASS} dbname={{ .Values.database.instance }} sslmode=disable TimeZone=Asia/Shanghai"
+      {{- end }}
+    period: 5
+    configMap:
+      name: {{ .Values.configmap }}
+      namespace: {{ .Release.Namespace }}

@@ -1,0 +1,31 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "krakend-manager.fullname" . }}
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  config.yaml: |-
+    server:
+      http:
+        addr: 0.0.0.0:{{ .Values.service.http }}
+        timeout: 1s
+      grpc:
+        addr: 0.0.0.0:{{ .Values.service.grpc }}
+        timeout: 1s
+    data:
+      database:
+        driver: {{ .Values.database.driver }}
+        {{- if eq .Values.database.driver "mysql" }}
+        source: "${DB_USER}:${DB_PASS}@tcp({{ .Values.database.host }}:{{ .Values.database.port }})/{{ .Values.database.instance }}?parseTime=true"
+        {{- else }}
+        source: "host={{ .Values.database.host }} port={{ .Values.database.port }} user=${DB_USER} password=${DB_PASS} dbname={{ .Values.database.instance }} sslmode=disable TimeZone=Asia/Shanghai"
+        {{- end }}
+      redis:
+        addr: {{ .Values.redis.host }}:{{ .Values.redis.port }}
+        password: ${REDIS_PASS}
+        read_timeout: 0.2s
+        write_timeout: 0.2s
+    snowflake:
+      key: {{ include "krakend-manager.fullname" . }}
+      liveSeconds: 60
