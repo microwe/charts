@@ -1,0 +1,59 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "wechat.fullname" . }}
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  config.yml: |-
+    payment:
+      enable: {{ .Values.wechat.payment.enable }}
+      appID: {{ .Values.wechat.payment.appID }}
+      mchID: {{ .Values.wechat.payment.mchID }}
+      certPath: /etc/wechat/apiclient_cert.pem
+      keyPath: /etc/wechat/apiclient_key.pem
+      serialNo: {{ .Values.wechat.payment.serialNo }}
+      key: {{ .Values.wechat.payment.key }}
+      certificateKeyPath: /etc/wechat/wechat_pay.pem
+      wechatPaySerial: {{ .Values.wechat.payment.wechatPaySerial }}
+      RSAPublicKeyPath: /xxx/ArtisanCloud/dev/wx_cert_artisan_cloud/wx_rsa_public_key.pem
+      mchApiV3Key: {{ .Values.wechat.payment.mchApiV3Key }}
+      notifyURL: {{ .Values.wechat.payment.notifyURL }}
+
+    miniprogram:
+      enable: {{ .Values.wechat.miniprogram.enable }}
+      appID: {{ .Values.wechat.miniprogram.appID }}
+      secret: {{ .Values.wechat.miniprogram.secret }}
+      messageToken: {{ .Values.wechat.miniprogram.token }}
+      messageAesKey: {{ .Values.wechat.miniprogram.aes }}
+
+    officialAccount:
+      enable: {{ .Values.wechat.officialAccount.enable }}
+      appID: {{ .Values.wechat.officialAccount.appID }}
+      appSecret: {{ .Values.wechat.officialAccount.secret }}
+      messageToken: {{ .Values.wechat.officialAccount.token }}
+      messageAesKey: {{ .Values.wechat.officialAccount.aes }}
+      openAIKey: {{ .Values.wechat.officialAccount.openAIKey }}
+
+    redis:
+      addr: {{ .Values.redis.host }}:{{ .Values.redis.port }}
+      password: ${REDIS_PASS}
+      read_timeout: 0.2s
+      write_timeout: 0.2s
+
+    database:
+      driver: {{ .Values.database.driver }}
+      {{- if eq .Values.database.driver "mysql" }}
+      dsn: "${DB_USER}:${DB_PASS}@tcp({{ .Values.database.host }}:{{ .Values.database.port }})/{{ .Values.database.instance }}?parseTime=true"
+      {{- else }}
+      dsn: "host={{ .Values.database.host }} port={{ .Values.database.port }} user=${DB_USER} password=${DB_PASS} dbname={{ .Values.database.instance }} sslmode=disable TimeZone=Asia/Shanghai"
+      {{- end }}
+  
+  apiclient_cert.pem: |-
+{{ .Values.pem.apiclient_cert | indent 4}}
+
+  apiclient_key.pem: |-
+{{ .Values.pem.apiclient_key | indent 4}}
+
+  wechat_pay.pem: |-
+{{ .Values.pem.wechat_pay | indent 4}}
