@@ -1,0 +1,86 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "micro-auth.fullname" . }}
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  config.yaml: |-
+    server:
+      http:
+        addr: 0.0.0.0:{{ .Values.service.http }}
+        timeout: 1s
+      grpc:
+        addr: 0.0.0.0:{{ .Values.service.grpc }}
+        timeout: 1s
+    data:
+      database:
+        driver: {{ .Values.database.driver }}
+        {{- if eq .Values.database.driver "mysql" }}
+        source: "${DB_USER}:${DB_PASS}@tcp({{ .Values.database.host }}:{{ .Values.database.port }})/{{ .Values.database.instance }}?parseTime=true"
+        {{- else }}
+        source: "host={{ .Values.database.host }} port={{ .Values.database.port }} user=${DB_USER} password=${DB_PASS} dbname={{ .Values.database.instance }} sslmode=disable TimeZone=Asia/Shanghai"
+        {{- end }}
+      redis:
+        addr: {{ .Values.redis.host }}:{{ .Values.redis.port }}
+        password: ${REDIS_PASS}
+        read_timeout: 0.2s
+        write_timeout: 0.2s
+      rpc: 
+        krakendManager: {{ .Values.rpc.krakendManager }}
+    casbin:
+      model: /etc/microwe/auth/rbac_model.conf
+
+  jwt.yaml: |-
+    jwt:
+      expireDuration: {{ .Values.jwt.expire }}
+      {{ if .Values.jwt.secret }}
+      secret: {{ .Values.jwt.secret }}
+      {{ else }}
+      secret: {{ randAlphaNum 32 | quote }}
+      {{ end }}
+      realm: {{ .Values.jwt.realm }}
+      algorithm: "RS256"
+      {{ if .Values.jwt.kid }}
+      kid: {{ .Values.jwt.kid | quote }}
+      {{ else }}
+      kid: {{ uuidv4 | quote }}
+      {{ end }}
+      privateKeyFile: "/etc/microwe/auth/private.pem"
+      publicKeyFile: "/etc/microwe/auth/public.pem"
+
+  tenant.yaml: |-
+    tenant:
+      name: "组织"
+      idBit: 8
+      maxLevel: 8
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "micro-auth.fullname" . }}-keys
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  rbac_model.conf: |-
+    [request_definition]
+    r = sub, obj, act
+
+    [policy_definition]
+    p = sub, obj, act
+
+    [role_definition]
+    g = _, _
+
+    [policy_effect]
+    e = some(where (p.eft == allow))
+
+    [matchers]
+    m = g(r.sub, p.sub) && keyMatch4(r.obj, p.obj) && regexMatch(r.act, p.act)
+
+  private.pem: |-
+{{ .Values.rsa.private.pem | indent 4}}
+
+  public.pem: |-
+{{ .Values.rsa.public.pem | indent 4}}
