@@ -112,6 +112,7 @@ wechat:
     wechatPaySerial: ""
     mchApiV3Key: ""
     notifyURL: ""
+    h5URL: ""
   miniprogram:
     enable: false
     appID: ""

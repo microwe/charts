@@ -19,6 +19,7 @@ data:
       RSAPublicKeyPath: /xxx/ArtisanCloud/dev/wx_cert_artisan_cloud/wx_rsa_public_key.pem
       mchApiV3Key: {{ .Values.wechat.payment.mchApiV3Key }}
       notifyURL: {{ .Values.wechat.payment.notifyURL }}
+      h5URL: {{ .Values.wechat.payment.h5URL }}
 
     miniprogram:
       enable: {{ .Values.wechat.miniprogram.enable }}
