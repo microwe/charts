@@ -1,6 +1,6 @@
 apiVersion: v2
 name: wechat
-description: 认证鉴权服务
+description: 微信公众号服务
 
 # A chart can be either an 'application' or a 'library' chart.
 #
