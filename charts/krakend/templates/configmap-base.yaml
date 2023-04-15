@@ -1,0 +1,45 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "krakend-gateway.fullname" . }}
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  krakend.json: |-
+{{ .Files.Get "krakend.json" | indent 4}}
+    
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "krakend-gateway.fullname" . }}-partials
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  default_backend.tmpl: |-
+    "qos/ratelimit/proxy": {
+        "max_rate": "100",
+        "capacity": "100"
+    },
+    "backend/http": {
+        "return_error_details": "app"
+    }
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "krakend-gateway.fullname" . }}-templates
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  authz-ep.tmpl: |-
+{{ .Files.Get "authz-ep.tmpl" | indent 4}}
+    
+  authn-ep.tmpl: |-
+{{ .Files.Get "authn-ep.tmpl" | indent 4}}
+    
+  open-ep.tmpl: |-
+{{ .Files.Get "open-ep.tmpl" | indent 4}}
+    

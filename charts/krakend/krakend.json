@@ -1,0 +1,40 @@
+{
+    "version": 3,
+    "name": "My Lovely Gateway",
+    "port": {{ .service.port }},
+    {{if .service.proxies}}
+    "proxies": {{ marshal .service.proxies }},
+    {{end}}
+    {{if .service.timeout}}
+    "timeout": "{{ .service.timeout }}",
+    "read_timeout": "{{ .service.timeout }}",
+    "write_timeout": "{{ .service.timeout }}",
+    "read_header_timeout": "{{ .service.timeout }}",
+    {{end}}
+    "extra_config": {{ marshal .service.extra_config }},
+    "endpoints": [
+      {{ $index := 0 }}
+      {{ range $key, $endpoints := . }}
+        {{if ne $key "service"}}
+          {{if $index }},{{end}}
+          {{ $index = len $key }}
+        {{end}}
+        
+        {{if $endpoints.opens }}
+        {{ template "open-ep.tmpl" $endpoints.opens }}
+        {{end}}
+        
+        {{if $endpoints.authentications }}
+        {{if $endpoints.opens}},{{end}}
+        {{ template "authn-ep.tmpl" $endpoints.authentications }}
+        {{end}}
+      
+        {{if $endpoints.authorities }}
+        {{if $endpoints.opens}},
+        {{else if $endpoints.authentications}},
+        {{end}}
+        {{ template "authz-ep.tmpl" $endpoints.authorities }}
+        {{end}}
+      {{ end }}
+    ]
+}

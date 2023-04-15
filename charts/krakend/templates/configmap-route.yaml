@@ -1,0 +1,712 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "krakend-gateway.fullname" . }}-settings
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  service.json: |-
+    {
+      "port": 4096,
+      "timeout": "3s", 
+      "extra_config": {
+        "krakend/zap": {
+          "level": "DEBUG",
+          "stdout": true,
+          "filename": "/var/log/microwe/gateway.log",
+          "maxSize": 1024,
+          "maxAge": 3,
+          "maxNum": 3
+        },
+        "krakend/recorder": {
+          "log_request": true,
+          "log_response": false,
+          "skip_paths": [
+            "/__health",
+            "/api/ignore"
+          ],
+          "endpoint_key": "X-Krakend-Endpoint",
+          "service_key": "X-Krakend-Service",
+          "output": "zap",
+          "zap": {
+            "level": "DEBUG",
+            "stdout": true,
+            "filename": "/var/log/audit/recorder.log",
+            "maxSize": 1024,
+            "maxAge": 3,
+            "maxNum": 3
+          }
+        },
+        "telemetry/opencensus": {
+          "exporters": {
+            "prometheus": {
+              "port": 9091,
+              "namespace": "krakend",
+              "tag_host": false,
+              "tag_path": true,
+              "tag_method": true,
+              "tag_statuscode": true
+            }
+          }
+        }
+      }
+    }
+
+  auth.json: |-
+    {
+      "opens": [
+        {
+          "name": {
+            "endpoint": "登陆接口",
+            "service": "鉴权服务"
+          },
+          "method": "post",
+          "endpoint": "/login",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/login"
+        },
+        {
+          "name": {
+            "endpoint": "获取验证码",
+            "service": "鉴权服务"
+          },
+          "method": "get",
+          "endpoint": "/captcha",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/captcha"
+        }
+      ],
+      "authentications": [
+        {
+          "name": {
+            "endpoint": "用户退出",
+            "service": "鉴权服务"
+          },
+          "endpoint": "/logout",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/logout",
+          "extraConfig":{
+            "abc":{"d":1},
+            "abcd":{"d":1}
+          }
+        },
+        {
+          "name": {
+            "endpoint": "用户基本信息",
+            "service": "鉴权服务"
+          },
+          "endpoint": "/user/info",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/user/info"
+        },
+        {
+          "endpoint": "/user/tenant",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/user/tenant"
+        },
+        {
+          "endpoint": "/user/tenant",
+          "method": "patch",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/user/tenant"
+        },
+        {
+          "endpoint": "/navigate",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/navigate"
+        },
+        {
+          "endpoint": "/apps",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/apps"
+        }
+      ],
+      "authorities": [
+        {
+          "endpoint": "/users/{id}/password",
+          "method": "patch",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}/password"
+        },
+        {
+          "endpoint": "/users/{id}/offline",
+          "method": "patch",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}/offline"
+        },
+        {
+          "endpoint": "/users/{id}/password",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}/password"
+        },
+        {
+          "endpoint": "/users",
+          "method": "get",
+          "query": ["latestId","size","username"],
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users"
+        },
+        {
+          "endpoint": "/users/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}"
+        },
+        {
+          "endpoint": "/users",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users"
+        },
+        {
+          "endpoint": "/users/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}"
+        },
+        {
+          "endpoint": "/users/{id}",
+          "method": "delete",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}"
+        },
+        {
+          "endpoint": "/users/{id}/roles",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}/roles"
+        },
+        {
+          "endpoint": "/users/{id}/roles",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}/roles"
+        },
+        {
+          "endpoint": "/users/{id}/tenants",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}/tenants"
+        },
+        {
+          "endpoint": "/users/{id}/tenants",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/users/{id}/tenants"
+        },
+        {
+          "endpoint": "/roles",
+          "method": "get",
+          "query": ["latestId","size","name"],
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles"
+        },
+        {
+          "endpoint": "/roles/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles/{id}"
+        },
+        {
+          "endpoint": "/roles",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles"
+        },
+        {
+          "endpoint": "/roles/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles/{id}"
+        },
+        {
+          "endpoint": "/roles/{id}",
+          "method": "delete",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles/{id}"
+        },
+        {
+          "endpoint": "/roles/{id}/menus",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles/{id}/menus"
+        },
+        {
+          "endpoint": "/roles/{id}/menus",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles/{id}/menus"
+        },
+        {
+          "endpoint": "/roles/{id}/resources",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles/{id}/resources"
+        },
+        {
+          "endpoint": "/roles/{id}/resources",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/roles/{id}/resources"
+        },
+        {
+          "endpoint": "/menus",
+          "method": "get",
+          "query": ["pid"],
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/menus"
+        },
+        {
+          "endpoint": "/menus/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/menus/{id}"
+        },
+        {
+          "endpoint": "/menus",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/menus"
+        },
+        {
+          "endpoint": "/menus/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/menus/{id}"
+        },
+        {
+          "endpoint": "/menus/{id}",
+          "method": "delete",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/menus/{id}"
+        },
+        {
+          "endpoint": "/menu/tree",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/menu/tree"
+        },
+        {
+          "endpoint": "/tenants",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/tenants"
+        },
+        {
+          "endpoint": "/tenants/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/tenants/{id}"
+        },
+        {
+          "endpoint": "/tenants",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/tenants"
+        },
+        {
+          "endpoint": "/tenants/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/tenants/{id}"
+        },
+        {
+          "endpoint": "/tenants/{id}",
+          "method": "delete",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/tenants/{id}"
+        },
+        {
+          "endpoint": "/tenant/tree",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.auth }}"
+          ],
+          "backend": "/v1/tenant/tree"
+        }
+      ]
+    }
+
+  gateway.json: |-
+    {
+      "authentications": [
+        {
+          "endpoint": "/endpoints",
+          "method": "get",
+          "query": ["latestId","size","name"],
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/endpoints"
+        },
+        {
+          "endpoint": "/endpoints/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/endpoints/{id}"
+        },
+        {
+          "endpoint": "/endpoints",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/endpoints"
+        },
+        {
+          "endpoint": "/endpoints/deploy",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/endpoints/deploy"
+        },
+        {
+          "endpoint": "/endpoints/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/endpoints/{id}"
+        },
+        {
+          "endpoint": "/endpoints/{id}",
+          "method": "delete",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/endpoints/{id}"
+        },
+        {
+          "endpoint": "/endpoints/list/select",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/endpoints/list/select"
+        },
+        {
+          "endpoint": "/backends",
+          "method": "get",
+          "query": ["latestId","size","name"],
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/backends"
+        },
+        {
+          "endpoint": "/backends/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/backends/{id}"
+        },
+        {
+          "endpoint": "/backends",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/backends"
+        },
+        {
+          "endpoint": "/backends/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/backends/{id}"
+        },
+        {
+          "endpoint": "/backends/{id}",
+          "method": "delete",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/backends/{id}"
+        },
+        {
+          "endpoint": "/backends/list/select",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.gateway }}"
+          ],
+          "backend": "/v1/backends/list/select"
+        }
+      ]
+    }
+
+  base.json: |-
+    {
+      "opens": [
+        {
+          "method": "get",
+          "endpoint": "/auth/type",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/auth/type"
+        },
+        {
+          "method": "get",
+          "endpoint": "/rsa/public",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/rsa/public"
+        },
+        {
+          "method": "get",
+          "endpoint": "/items",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/items"
+        },
+        {
+          "method": "get",
+          "endpoint": "/items/{group}",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/items/{group}"
+        },
+        {
+          "method": "get",
+          "endpoint": "/items/{group}/{name}",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/items/{group}/{name}"
+        },
+        {
+          "method": "get",
+          "endpoint": "/form/{name}",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/form/{name}"
+        }
+      ],
+      "authorities": [
+        {
+          "endpoint": "/forms",
+          "method": "get",
+          "query": ["latestId","size","name"],
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/forms"
+        },
+        {
+          "endpoint": "/forms/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/forms/{id}"
+        },
+        {
+          "endpoint": "/forms",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/forms"
+        },
+        {
+          "endpoint": "/forms/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/forms/{id}"
+        },
+        {
+          "endpoint": "/forms/{id}",
+          "method": "delete",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/forms/{id}"
+        },
+        {
+          "endpoint": "/dictionaries",
+          "method": "get",
+          "query": ["latestId","size","group", "key"],
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/dictionaries"
+        },
+        {
+          "endpoint": "/dictionaries/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/dictionaries/{id}"
+        },
+        {
+          "endpoint": "/dictionaries",
+          "method": "post",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/dictionaries"
+        },
+        {
+          "endpoint": "/dictionaries/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/dictionaries/{id}"
+        },
+        {
+          "endpoint": "/dictionaries/{id}",
+          "method": "delete",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/dictionaries/{id}"
+        },
+        {
+          "endpoint": "/sys/parameters",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/parameters"
+        },
+        {
+          "endpoint": "/sys/parameters/{id}",
+          "method": "get",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/parameters/{id}"
+        },
+        {
+          "endpoint": "/sys/parameters/{id}",
+          "method": "put",
+          "host": [
+            "http://{{ .Values.server.base }}"
+          ],
+          "backend": "/v1/parameters/{id}"
+        }
+      ]
+    }
+  
+  audit.json: |-
+    {
+      "authentications": [
+        {
+          "endpoint": "/audit/logs",
+          "method": "get",
+          "query": ["latestId","size","user", "method", "beginTime", "endTime"],
+          "host": [
+            "http://micro-audit:8100"
+          ],
+          "backend": "/v1/audit/logs"
+        },
+        {
+          "endpoint": "/audit/logs/{id}",
+          "method": "get",
+          "host": [
+            "http://micro-audit:8100"
+          ],
+          "backend": "/v1/audit/logs/{id}"
+        }
+      ]
+    }

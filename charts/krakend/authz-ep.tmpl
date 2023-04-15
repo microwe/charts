@@ -1,0 +1,79 @@
+{{ range $idx, $endpoint := . }}
+    {{if $idx}},{{end}}
+    {
+      "endpoint": "{{ $endpoint.endpoint }}",
+      "method": "{{ $endpoint.method }}",
+      "input_headers": [
+        "Authorization",
+        "Content-Type",
+        "X-Request-Id",
+        "X-User-Id",
+        "X-User-Name",
+        "X-User-Org",
+        "X-User-Tenant",
+        "X-User-Authorities"
+      ],
+      {{if $endpoint.timeout}}
+      "timeout": "{{ $endpoint.timeout }}",
+      {{end}}
+      {{if $endpoint.encoding}}
+      "output_encoding": {{ marshal $endpoint.encoding }},
+      {{end}}
+      {{if $endpoint.query}}
+      "input_query_strings": {{ marshal $endpoint.query }},
+      {{end}}
+      "backend": [
+        {
+          "host": {{ marshal $endpoint.host }},
+          "method": "{{ $endpoint.method }}",
+          "url_pattern": "{{ $endpoint.backend }}",
+          {{if $endpoint.encoding}}
+          "encoding": {{ marshal $endpoint.encoding }},
+          {{end}}
+          {{if $endpoint.backendConfig }}
+          "extra_config": {{ marshal $endpoint.backendConfig }}
+          {{else}}  
+          "extra_config": {
+            {{ include "default_backend.tmpl" }}
+          }
+          {{end}}
+        }
+      ],
+      "extra_config": {
+        "krakend/jose/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://micro-auth:8100/jwk.json",
+          "cache": true,
+          "disable_jwk_security": true,
+          "roles_key": "username",
+          "dynamic_validator_enabled": true,
+          "roles": [
+            "http://micro-auth:8100/v1/permit",
+            "{{ $endpoint.method }}",
+            "{{ $endpoint.endpoint }}"
+          ],
+          "propagate_claims": [
+            ["id", "x-user-id"],
+            ["username", "x-user-name"],
+            ["org", "x-user-org"],
+            ["tenant", "x-user-tenant"],
+            ["authorities", "x-user-authorities"]
+          ]
+        },
+        "krakend/recorder/router": {
+          {{if $endpoint.name }}
+          "X-Krakend-Endpoint": "{{ $endpoint.name.endpoint }}",
+          "X-Krakend-Service": "{{ $endpoint.name.service }}"
+          {{else}}
+          "X-Krakend-Endpoint": "{{ $endpoint.endpoint }}",
+          "X-Krakend-Service": ""
+          {{end}}
+        }
+        {{if $endpoint.extraConfig }}
+          {{ range $key, $config := $endpoint.extraConfig }}
+          ,"{{ $key }}": {{ marshal $config }}
+          {{end}}
+        {{end}}
+      }
+    }
+{{ end }}
