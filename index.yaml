@@ -96,4 +96,15 @@ entries:
     urls:
     - https://github.com/microwe/charts/releases/download/wechat-1.0.0/wechat-1.0.0.tgz
     version: 1.0.0
-generated: "2023-04-15T18:13:07.934973791Z"
+  wechat-admin:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2023-04-30T16:08:21.566186138Z"
+    description: 微信公众号管理系统
+    digest: 6358c3d718622c8ab2d7c2a5a3b324ae2f92a7871e52fac221eed59e7d4f2773
+    name: wechat-admin
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/wechat-admin-1.0.0/wechat-admin-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-04-30T16:08:21.566197139Z"
