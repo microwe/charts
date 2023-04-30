@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wechat-admin.fullname" . }}
+  labels:
+    {{- include "wechat-admin.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.http }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodeHttp }}
+      {{- end }}
+  selector:
+    {{- include "wechat-admin.selectorLabels" . | nindent 4 }}

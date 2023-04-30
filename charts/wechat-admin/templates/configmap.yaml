@@ -1,0 +1,114 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "wechat-admin.fullname" . }}
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  nginx.conf: |-
+    user  nginx;
+    worker_processes  auto;
+
+    error_log  /var/log/nginx/error.log notice;
+    pid        /var/run/nginx.pid;
+
+
+    events {
+        worker_connections  8172;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile        on;
+        #tcp_nopush     on;
+
+        keepalive_timeout  65;
+
+        #gzip  on;
+
+        include /etc/nginx/conf.d/*.conf;
+    }
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-{{ include "wechat-admin.fullname" . }}-app
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+data:
+  app.conf: |-
+    server {
+        listen       {{ .Values.service.http }};
+        listen  [::]:{{ .Values.service.http }};
+        server_name  localhost;
+
+        client_max_body_size 100m;
+
+        #charset koi8-r;
+        #access_log  /var/log/nginx/host.access.log  main;
+        root   /usr/share/nginx/html;
+
+        index  index.html index.htm;
+        #vue-router配置
+        location / {
+            #禁止nginx显示目录列表
+            autoindex off;
+            absolute_redirect off;
+            root  /usr/share/nginx/html;
+            try_files $uri $uri/ /index.html;
+        }
+        location @router {
+            rewrite ^.*$ /index.html last;
+        }
+
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+
+        location /api/ {
+            proxy_pass {{ .Values.api }};
+            proxy_redirect     off;
+
+    #         add_header Access-Control-Allow-Origin *;
+    #         add_header Access-Control-Allow-Credentials: true;
+    #         add_header Access-Control-Allow-Methods GET,POST,OPTIONS,PUT,DELETE;
+
+            proxy_http_version 1.1;
+            # 连接延时
+            proxy_connect_timeout 10s;
+            proxy_read_timeout 30s;
+            proxy_send_timeout 30s;
+            # IP 穿透
+            proxy_set_header   X-Forwarded-Proto $scheme;
+            proxy_set_header   Host $proxy_host;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            # WebSocket 穿透
+            proxy_set_header Origin "";
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+    }
+{{- if .Values.metric.enabled }}
+  status.conf: |-
+    server {
+        listen       {{ .Values.metric.port }} default_server;
+        location /status {
+            stub_status;
+            access_log off;
+        }
+    }
+{{- end }}

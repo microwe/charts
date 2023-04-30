@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wechat-admin.fullname" . }}
+  labels:
+    {{- include "wechat-admin.labels" . | nindent 4 }}
+  {{- if .Values.reloader.enabled }}
+  annotations:
+    configmap.reloader.stakater.com/reload: "cm-{{ include "wechat-admin.fullname" . }}"
+  {{- end }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "wechat-admin.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      annotations:
+        {{- include "wechat-admin.annotations" . | nindent 8 }}
+      labels:
+        {{- include "wechat-admin.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: app
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.http }}
+              protocol: TCP
+            {{- if .Values.metric.enabled }}
+            - name: metric
+              containerPort: {{ .Values.metric.port }}
+              protocol: TCP
+            {{- end }}
+          volumeMounts:
+            - name: tz-config
+              mountPath: /etc/localtime
+            - name: cm-{{ include "wechat-admin.name" . }}
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: cm-{{ include "wechat-admin.name" . }}-app
+              mountPath: /etc/nginx/conf.d
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/{{ .Values.timezone }}
+        - name: cm-{{ include "wechat-admin.name" . }}
+          configMap:
+            name: cm-{{ include "wechat-admin.fullname" . }}
+        - name: cm-{{ include "wechat-admin.name" . }}-app
+          configMap:
+            name: cm-{{ include "wechat-admin.fullname" . }}-app
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
