@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  chatgpt:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2023-05-26T05:36:15.731880281Z"
+    description: ChatGPT网页版
+    digest: d968e36c661360e1bcbc1e3767f807ee9296ee41cdeb763094e86d2d79c63cde
+    name: chatgpt
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/chatgpt-1.0.0/chatgpt-1.0.0.tgz
+    version: 1.0.0
   krakend-gateway:
   - apiVersion: v2
     appVersion: v2
@@ -117,4 +128,4 @@ entries:
     urls:
     - https://github.com/microwe/charts/releases/download/wechat-admin-1.0.0/wechat-admin-1.0.0.tgz
     version: 1.0.0
-generated: "2023-04-30T16:21:40.217367837Z"
+generated: "2023-05-26T05:36:15.731899681Z"
