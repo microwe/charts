@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chatgpt.fullname" . }}
+  labels:
+    {{- include "chatgpt.labels" . | nindent 4 }}
+  {{- if .Values.reloader.enabled }}
+  annotations:
+    configmap.reloader.stakater.com/reload: "cm-{{ include "chatgpt.fullname" . }}"
+  {{- end }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "chatgpt.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      annotations:
+        {{- include "chatgpt.annotations" . | nindent 8 }}
+      labels:
+        {{- include "chatgpt.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: app
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.http }}
+              protocol: TCP
+            {{- if .Values.metric.enabled }}
+            - name: metric
+              containerPort: {{ .Values.metric.port }}
+              protocol: TCP
+            {{- end }}
+          volumeMounts:
+            - name: tz-config
+              mountPath: /etc/localtime
+            - name: cm-{{ include "chatgpt.name" . }}
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: cm-{{ include "chatgpt.name" . }}-app
+              mountPath: /etc/nginx/conf.d
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/{{ .Values.timezone }}
+        - name: cm-{{ include "chatgpt.name" . }}
+          configMap:
+            name: cm-{{ include "chatgpt.fullname" . }}
+        - name: cm-{{ include "chatgpt.name" . }}-app
+          configMap:
+            name: cm-{{ include "chatgpt.fullname" . }}-app
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
