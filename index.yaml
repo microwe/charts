@@ -69,6 +69,16 @@ entries:
   wechat:
   - apiVersion: v2
     appVersion: v1
+    created: "2023-06-03T05:48:10.474727853Z"
+    description: 微信公众号服务
+    digest: bb2490f06f82ae2a8228ccd1342b612240afac68dd9abc7c7bf69aa043615b51
+    name: wechat
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/wechat-1.0.4/wechat-1.0.4.tgz
+    version: 1.0.4
+  - apiVersion: v2
+    appVersion: v1
     created: "2023-04-15T18:13:07.93495969Z"
     description: 微信公众号服务
     digest: 5b69d04873a675f82d1d0660917e1c7b7ee9694d5633bcda91f1ad41c6d02b5d
@@ -128,4 +138,4 @@ entries:
     urls:
     - https://github.com/microwe/charts/releases/download/wechat-admin-1.0.0/wechat-admin-1.0.0.tgz
     version: 1.0.0
-generated: "2023-05-26T05:36:15.731899681Z"
+generated: "2023-06-03T05:48:10.474753153Z"
