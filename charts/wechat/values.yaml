@@ -126,6 +126,7 @@ wechat:
     token: ""
     aes: ""
     openAIKey: ""
+    openAIUrl: "https://api.openai.com/v1"
 pem:
   apiclient_cert: |-
     {{ .Files.Get "./apiclient_cert.pem" }}

@@ -35,6 +35,7 @@ data:
       messageToken: {{ .Values.wechat.officialAccount.token }}
       messageAesKey: {{ .Values.wechat.officialAccount.aes }}
       openAIKey: {{ .Values.wechat.officialAccount.openAIKey }}
+      openAIUrl: {{ .Values.wechat.officialAccount.openAIUrl }}
 
     redis:
       addr: {{ .Values.redis.host }}:{{ .Values.redis.port }}
