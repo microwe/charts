@@ -138,4 +138,15 @@ entries:
     urls:
     - https://github.com/microwe/charts/releases/download/wechat-admin-1.0.0/wechat-admin-1.0.0.tgz
     version: 1.0.0
-generated: "2023-06-03T05:48:10.474753153Z"
+  wegpt:
+  - apiVersion: v2
+    appVersion: v1
+    created: "2023-06-14T13:35:04.895565087Z"
+    description: wechat gpt
+    digest: f69d6dd997b4e925923c6aff4c4130a151819773f22350a734f17ec3f4533d00
+    name: wegpt
+    type: application
+    urls:
+    - https://github.com/microwe/charts/releases/download/wegpt-1.0.0/wegpt-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-06-14T13:35:04.895595687Z"
